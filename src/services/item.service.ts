@@ -1,6 +1,12 @@
 import { CreateItemInput } from "../interfaces/item.interface";
 
-import { createItem, getAllItems } from "../repositories/item.repository";
+import {
+  createItem,
+  deleteItem,
+  getAllItems,
+  getItemById,
+  updateItem,
+} from "../repositories/item.repository";
 
 export const createItemService = async (
   itemData: CreateItemInput,
@@ -17,4 +23,19 @@ export const getAllItemsService = async (
   limit: number,
 ): Promise<any> => {
   return await getAllItems(search, minPrice, maxPrice, sort, page, limit);
+};
+
+export const getItemByIdService = async (itemId: number): Promise<any> => {
+  return await getItemById(itemId);
+};
+
+export const updateItemService = async (
+  itemId: number,
+  updateData: any,
+): Promise<any> => {
+  return await updateItem(itemId, updateData);
+};
+
+export const deleteItemService = async (itemId: number): Promise<any> => {
+  return await deleteItem(itemId);
 };

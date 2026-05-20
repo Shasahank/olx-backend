@@ -82,3 +82,51 @@ export const getAllItems = async (
 
   return rows;
 };
+
+export const getItemById = async (itemId: number): Promise<any> => {
+  const [rows]: any = await pool.query(
+    `
+      SELECT *
+      FROM items
+      WHERE id = ?
+    `,
+    [itemId],
+  );
+
+  return rows[0];
+};
+
+export const updateItem = async (
+  itemId: number,
+  updateData: any,
+): Promise<any> => {
+  const fields = Object.keys(updateData);
+
+  const values = Object.values(updateData);
+
+  const setClause = fields.map((field) => `${field} = ?`).join(", ");
+
+  const query = `
+    UPDATE items
+    SET ${setClause}
+    WHERE id = ?
+  `;
+
+  values.push(itemId);
+
+  const [result] = await pool.query(query, values);
+
+  return result;
+};
+
+export const deleteItem = async (itemId: number): Promise<any> => {
+  const [result] = await pool.query(
+    `
+      DELETE FROM items
+      WHERE id = ?
+    `,
+    [itemId],
+  );
+
+  return result;
+};
