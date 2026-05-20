@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
+import authRoutes from "./routes/auth.routes";
+
 const app: Application = express();
 
 app.use(express.json());
@@ -18,5 +20,7 @@ app.get("/", (req: Request, res: Response) => {
     message: "Hashers Marketplace API Running",
   });
 });
+
+app.use("/api/v1/auth", authRoutes);
 
 export default app;
