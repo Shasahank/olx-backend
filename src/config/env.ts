@@ -13,3 +13,5 @@ export const env = {
 
   JWT_SECRET: process.env.JWT_SECRET || "supersecretkey",
 };
+
+// mkdir config controllers services repositories routes middlewares validations utils constants interfaces types database tests
