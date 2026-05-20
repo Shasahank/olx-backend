@@ -18,3 +18,24 @@ export const signupService = async (
     password: hashedPassword,
   });
 };
+
+export const loginService = async (
+  email: string,
+  password: string,
+): Promise<any> => {
+  const users: any = await findUserByEmail(email);
+
+  if (users.length === 0) {
+    throw new Error("Invalid email or password");
+  }
+
+  const user = users[0];
+
+  const isPasswordMatched = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordMatched) {
+    throw new Error("Invalid email or password");
+  }
+
+  return user;
+};
