@@ -30,3 +30,42 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 
 export default app;
+
+
+/* 
+
+CREATE TABLE items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+
+    title VARCHAR(255) NOT NULL,
+
+    description TEXT NOT NULL,
+
+    price DECIMAL(10, 2) NOT NULL,
+
+    image_url VARCHAR(500),
+
+    status ENUM('available', 'sold') DEFAULT 'available',
+
+    seller_id INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (seller_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+CREATE INDEX idx_items_title
+ON items(title);
+
+
+CREATE INDEX idx_items_price
+ON items(price);
+
+CREATE INDEX idx_items_status
+ON items(status);
+*/
