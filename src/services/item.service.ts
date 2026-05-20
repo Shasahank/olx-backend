@@ -15,6 +15,7 @@ export const createItemService = async (
 };
 
 export const getAllItemsService = async (
+  role: string | undefined,
   search: string,
   minPrice: number,
   maxPrice: number,
@@ -22,7 +23,7 @@ export const getAllItemsService = async (
   page: number,
   limit: number,
 ): Promise<any> => {
-  return await getAllItems(search, minPrice, maxPrice, sort, page, limit);
+  return await getAllItems(role, search, minPrice, maxPrice, sort, page, limit);
 };
 
 export const getItemByIdService = async (itemId: number): Promise<any> => {

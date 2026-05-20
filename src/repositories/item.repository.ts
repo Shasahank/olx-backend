@@ -18,6 +18,7 @@ export const createItem = async (itemData: CreateItemInput): Promise<any> => {
 };
 
 export const getAllItems = async (
+  role: string | undefined,
   search: string,
   minPrice: number,
   maxPrice: number,
@@ -46,10 +47,15 @@ export const getAllItems = async (
     INNER JOIN users
     ON items.seller_id = users.id
 
-    WHERE items.status = 'available'
+    WHERE 1 = 1
   `;
 
   const queryParams: any[] = [];
+
+  // NORMAL USERS SEE ONLY AVAILABLE ITEMS
+  if (role !== "admin") {
+    query += ` AND items.status = 'available' `;
+  }
 
   if (search) {
     query += ` AND items.title LIKE ? `;

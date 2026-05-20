@@ -14,7 +14,8 @@ const router = Router();
 
 router.post("/", authenticateUser, createItemController);
 
-router.get("/", getAllItemsController);
+// NOW PROTECTED FOR ROLE-BASED VISIBILITY
+router.get("/", authenticateUser, getAllItemsController);
 
 router.get("/:id", getSingleItemController);
 

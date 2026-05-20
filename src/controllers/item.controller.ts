@@ -51,6 +51,8 @@ export const getAllItemsController = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const role = req.user?.role;
+
     const search = (req.query.search as string) || "";
 
     const minPrice = Number(req.query.minPrice) || 0;
@@ -64,6 +66,7 @@ export const getAllItemsController = async (
     const limit = Number(req.query.limit) || 10;
 
     const items = await getAllItemsService(
+      role,
       search,
       minPrice,
       maxPrice,
