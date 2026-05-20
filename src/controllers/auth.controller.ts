@@ -65,3 +65,12 @@ export const loginController = async (
     });
   }
 };
+
+export const logoutController = (req: Request, res: Response): void => {
+  res.clearCookie("token");
+
+  res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  });
+};
