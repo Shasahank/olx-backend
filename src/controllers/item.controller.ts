@@ -50,9 +50,9 @@ export const createItemController = async (
       return;
     }
 
-    res.status(400).json({
+    res.status(500).json({
       success: false,
-      message: error.message || "Something went wrong",
+      message: "Failed to create item",
     });
   }
 };
@@ -96,7 +96,7 @@ export const getAllItemsController = async (
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || "Something went wrong",
+      message: "Failed to fetch items",
     });
   }
 };
@@ -126,7 +126,7 @@ export const getSingleItemController = async (
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || "Something went wrong",
+      message: "Failed to fetch item",
     });
   }
 };
@@ -138,7 +138,26 @@ export const updateItemController = async (
   try {
     const itemId = Number(req.params.id);
 
+    // STATUS CANNOT BE UPDATED MANUALLY
+    if ("status" in req.body) {
+      res.status(400).json({
+        success: false,
+        message: "Item status cannot be updated manually",
+      });
+
+      return;
+    }
+
     const validatedData = updateItemSchema.parse(req.body);
+
+    if (Object.keys(validatedData).length === 0) {
+      res.status(400).json({
+        success: false,
+        message: "At least one field is required for update",
+      });
+
+      return;
+    }
 
     const item = await getItemByIdService(itemId);
 
@@ -176,9 +195,9 @@ export const updateItemController = async (
       return;
     }
 
-    res.status(400).json({
+    res.status(500).json({
       success: false,
-      message: error.message || "Something went wrong",
+      message: "Failed to update item",
     });
   }
 };
@@ -219,7 +238,7 @@ export const deleteItemController = async (
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || "Something went wrong",
+      message: "Failed to delete item",
     });
   }
 };

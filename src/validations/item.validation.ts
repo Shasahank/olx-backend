@@ -21,6 +21,4 @@ export const updateItemSchema = z.object({
   price: z.number().positive("Price must be greater than 0").optional(),
 
   image_url: z.string().url("Invalid image URL").optional(),
-
-  status: z.enum(["available", "sold"]).optional(),
 });
