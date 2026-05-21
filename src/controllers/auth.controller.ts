@@ -1,16 +1,23 @@
 import { Request, Response } from "express";
 
-import { loginSchema, signupSchema } from "../validations/auth.validation";
+import asyncHandler from "../utils/asyncHandler";
 
-import { loginService, signupService } from "../services/auth.service";
+import AppError from "../utils/appError";
+
+import {
+  loginSchema,
+  signupSchema,
+} from "../validations/auth.validation";
+
+import {
+  loginService,
+  signupService,
+} from "../services/auth.service";
 
 import { generateToken } from "../utils/jwt";
 
-export const signupController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const signupController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const validatedData = signupSchema.parse(req.body);
 
     await signupService(validatedData);
@@ -19,19 +26,11 @@ export const signupController = async (
       success: true,
       message: "User registered successfully",
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
   }
-};
+);
 
-export const loginController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const loginController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const validatedData = loginSchema.parse(req.body);
 
     const user = await loginService(
@@ -39,7 +38,17 @@ export const loginController = async (
       validatedData.password,
     );
 
-    const token = generateToken(user.id, user.role);
+    if (!user) {
+      throw new AppError(
+        "Invalid email or password",
+        401
+      );
+    }
+
+    const token = generateToken(
+      user.id,
+      user.role
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -58,19 +67,16 @@ export const loginController = async (
         role: user.role,
       },
     });
-  } catch (error: any) {
-    res.status(401).json({
-      success: false,
-      message: error.message || "Something went wrong",
+  }
+);
+
+export const logoutController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    res.clearCookie("token");
+
+    res.status(200).json({
+      success: true,
+      message: "Logout successful",
     });
   }
-};
-
-export const logoutController = (req: Request, res: Response): void => {
-  res.clearCookie("token");
-
-  res.status(200).json({
-    success: true,
-    message: "Logout successful",
-  });
-};
+);

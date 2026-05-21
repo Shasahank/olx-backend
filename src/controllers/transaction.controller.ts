@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 
+import asyncHandler from "../utils/asyncHandler";
+
+import AppError from "../utils/appError";
+
 import {
   getAllTransactionsService,
   getMyPurchasesService,
@@ -8,20 +12,12 @@ import {
   purchaseItemService,
 } from "../services/transaction.service";
 
-export const purchaseItemController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const purchaseItemController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const itemId = Number(req.params.itemId);
 
     if (!req.user) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized access",
-      });
-
-      return;
+      throw new AppError("Unauthorized access", 401);
     }
 
     await purchaseItemService(itemId, req.user.id);
@@ -30,19 +26,11 @@ export const purchaseItemController = async (
       success: true,
       message: "Item purchased successfully",
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
-  }
-};
+  },
+);
 
-export const getMyPurchasesController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const getMyPurchasesController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const transactions = await getMyPurchasesService(req.user!.id);
 
     res.status(200).json({
@@ -50,19 +38,11 @@ export const getMyPurchasesController = async (
       total: transactions.length,
       transactions,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
-  }
-};
+  },
+);
 
-export const getMySalesController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const getMySalesController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const transactions = await getMySalesService(req.user!.id);
 
     res.status(200).json({
@@ -70,19 +50,11 @@ export const getMySalesController = async (
       total: transactions.length,
       transactions,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
-  }
-};
+  },
+);
 
-export const getAllTransactionsController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const getAllTransactionsController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const transactions = await getAllTransactionsService();
 
     res.status(200).json({
@@ -90,30 +62,17 @@ export const getAllTransactionsController = async (
       total: transactions.length,
       transactions,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
-  }
-};
+  },
+);
 
-export const getTransactionByIdController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const getTransactionByIdController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const transactionId = Number(req.params.id);
 
     const transaction = await getTransactionByIdService(transactionId);
 
     if (!transaction) {
-      res.status(404).json({
-        success: false,
-        message: "Transaction not found",
-      });
-
-      return;
+      throw new AppError("Transaction not found", 404);
     }
 
     const isOwner =
@@ -123,22 +82,12 @@ export const getTransactionByIdController = async (
     const isAdmin = req.user?.role === "admin";
 
     if (!isOwner && !isAdmin) {
-      res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-
-      return;
+      throw new AppError("Access denied", 403);
     }
 
     res.status(200).json({
       success: true,
       transaction,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
-  }
-};
+  },
+);

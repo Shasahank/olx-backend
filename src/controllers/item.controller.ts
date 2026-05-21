@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 
-import { ZodError } from "zod";
+import asyncHandler from "../utils/asyncHandler";
+
+import AppError from "../utils/appError";
 
 import {
   createItemSchema,
@@ -15,20 +17,12 @@ import {
   updateItemService,
 } from "../services/item.service";
 
-export const createItemController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const createItemController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const validatedData = createItemSchema.parse(req.body);
 
     if (!req.user) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized access",
-      });
-
-      return;
+      throw new AppError("Unauthorized access", 401);
     }
 
     await createItemService({
@@ -40,28 +34,11 @@ export const createItemController = async (
       success: true,
       message: "Item created successfully",
     });
-  } catch (error: any) {
-    if (error instanceof ZodError) {
-      res.status(400).json({
-        success: false,
-        message: error.issues[0].message,
-      });
+  },
+);
 
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to create item",
-    });
-  }
-};
-
-export const getAllItemsController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const getAllItemsController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const role = req.user?.role;
 
     const search = (req.query.search as string) || "";
@@ -93,90 +70,48 @@ export const getAllItemsController = async (
       limit,
       items,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch items",
-    });
-  }
-};
+  },
+);
 
-export const getSingleItemController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const getSingleItemController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const itemId = Number(req.params.id);
 
     const item = await getItemByIdService(itemId);
 
     if (!item) {
-      res.status(404).json({
-        success: false,
-        message: "Item not found",
-      });
-
-      return;
+      throw new AppError("Item not found", 404);
     }
 
     res.status(200).json({
       success: true,
       item,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch item",
-    });
-  }
-};
+  },
+);
 
-export const updateItemController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const updateItemController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const itemId = Number(req.params.id);
 
-    // STATUS CANNOT BE UPDATED MANUALLY
     if ("status" in req.body) {
-      res.status(400).json({
-        success: false,
-        message: "Item status cannot be updated manually",
-      });
-
-      return;
+      throw new AppError("Item status cannot be updated manually", 400);
     }
 
     const validatedData = updateItemSchema.parse(req.body);
 
     if (Object.keys(validatedData).length === 0) {
-      res.status(400).json({
-        success: false,
-        message: "At least one field is required for update",
-      });
-
-      return;
+      throw new AppError("At least one field is required for update", 400);
     }
 
     const item = await getItemByIdService(itemId);
 
     if (!item) {
-      res.status(404).json({
-        success: false,
-        message: "Item not found",
-      });
-
-      return;
+      throw new AppError("Item not found", 404);
     }
 
     if (item.seller_id !== req.user?.id && req.user?.role !== "admin") {
-      res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-
-      return;
+      throw new AppError("Access denied", 403);
     }
 
     await updateItemService(itemId, validatedData);
@@ -185,48 +120,21 @@ export const updateItemController = async (
       success: true,
       message: "Item updated successfully",
     });
-  } catch (error: any) {
-    if (error instanceof ZodError) {
-      res.status(400).json({
-        success: false,
-        message: error.issues[0].message,
-      });
+  },
+);
 
-      return;
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to update item",
-    });
-  }
-};
-
-export const deleteItemController = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  try {
+export const deleteItemController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     const itemId = Number(req.params.id);
 
     const item = await getItemByIdService(itemId);
 
     if (!item) {
-      res.status(404).json({
-        success: false,
-        message: "Item not found",
-      });
-
-      return;
+      throw new AppError("Item not found", 404);
     }
 
     if (item.seller_id !== req.user?.id && req.user?.role !== "admin") {
-      res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-
-      return;
+      throw new AppError("Access denied", 403);
     }
 
     await deleteItemService(itemId);
@@ -235,10 +143,5 @@ export const deleteItemController = async (
       success: true,
       message: "Item deleted successfully",
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete item",
-    });
-  }
-};
+  },
+);

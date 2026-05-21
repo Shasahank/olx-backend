@@ -1,6 +1,10 @@
 import bcrypt from "bcryptjs";
+
 import { CreateUserInput } from "../interfaces/user.interface";
+
 import { createUser, findUserByEmail } from "../repositories/auth.repository";
+
+import AppError from "../utils/appError";
 
 export const signupService = async (
   userData: CreateUserInput,
@@ -8,7 +12,7 @@ export const signupService = async (
   const existingUsers: any = await findUserByEmail(userData.email);
 
   if (existingUsers.length > 0) {
-    throw new Error("Email already exists");
+    throw new AppError("User already exists with this email", 400);
   }
 
   const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -26,7 +30,7 @@ export const loginService = async (
   const users: any = await findUserByEmail(email);
 
   if (users.length === 0) {
-    throw new Error("Invalid email or password");
+    throw new AppError("Invalid email or password", 401);
   }
 
   const user = users[0];
@@ -34,7 +38,7 @@ export const loginService = async (
   const isPasswordMatched = await bcrypt.compare(password, user.password);
 
   if (!isPasswordMatched) {
-    throw new Error("Invalid email or password");
+    throw new AppError("Invalid email or password", 401);
   }
 
   return user;

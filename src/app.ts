@@ -10,6 +10,9 @@ import adminRoutes from "./routes/admin.routes";
 import itemRoutes from "./routes/item.routes";
 import transactionRoutes from "./routes/transaction.routes";
 
+import errorMiddleware from "./middlewares/error.middleware";
+import notFoundMiddleware from "./middlewares/notFound.middleware";
+
 const app: Application = express();
 
 app.use(express.json());
@@ -38,5 +41,11 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/items", itemRoutes);
 
 app.use("/api/v1/transactions", transactionRoutes);
+
+// 404 HANDLER
+app.use(notFoundMiddleware);
+
+// GLOBAL ERROR HANDLER
+app.use(errorMiddleware);
 
 export default app;
