@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 
+import { ZodError } from "zod";
+
 import {
   createItemSchema,
   updateItemSchema,
@@ -39,6 +41,15 @@ export const createItemController = async (
       message: "Item created successfully",
     });
   } catch (error: any) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        message: error.issues[0].message,
+      });
+
+      return;
+    }
+
     res.status(400).json({
       success: false,
       message: error.message || "Something went wrong",
@@ -156,6 +167,15 @@ export const updateItemController = async (
       message: "Item updated successfully",
     });
   } catch (error: any) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        message: error.issues[0].message,
+      });
+
+      return;
+    }
+
     res.status(400).json({
       success: false,
       message: error.message || "Something went wrong",

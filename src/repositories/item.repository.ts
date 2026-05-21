@@ -52,7 +52,6 @@ export const getAllItems = async (
 
   const queryParams: any[] = [];
 
-  // NORMAL USERS SEE ONLY AVAILABLE ITEMS
   if (role !== "admin") {
     query += ` AND items.status = 'available' `;
   }
@@ -129,6 +128,19 @@ export const deleteItem = async (itemId: number): Promise<any> => {
   const [result] = await pool.query(
     `
       DELETE FROM items
+      WHERE id = ?
+    `,
+    [itemId],
+  );
+
+  return result;
+};
+
+export const markItemAsSold = async (itemId: number): Promise<any> => {
+  const [result] = await pool.query(
+    `
+      UPDATE items
+      SET status = 'sold'
       WHERE id = ?
     `,
     [itemId],
