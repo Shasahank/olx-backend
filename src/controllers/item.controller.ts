@@ -17,12 +17,16 @@ import {
   updateItemService,
 } from "../services/item.service";
 
+import { ROLES } from "../constants/roles";
+
+import { MESSAGES } from "../constants/messages";
+
 export const createItemController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const validatedData = createItemSchema.parse(req.body);
 
     if (!req.user) {
-      throw new AppError("Unauthorized access", 401);
+      throw new AppError(MESSAGES.UNAUTHORIZED, 401);
     }
 
     await createItemService({
@@ -32,7 +36,7 @@ export const createItemController = asyncHandler(
 
     res.status(201).json({
       success: true,
-      message: "Item created successfully",
+      message: MESSAGES.ITEM_CREATED,
     });
   },
 );
@@ -80,7 +84,7 @@ export const getSingleItemController = asyncHandler(
     const item = await getItemByIdService(itemId);
 
     if (!item) {
-      throw new AppError("Item not found", 404);
+      throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
     }
 
     res.status(200).json({
@@ -95,30 +99,30 @@ export const updateItemController = asyncHandler(
     const itemId = Number(req.params.id);
 
     if ("status" in req.body) {
-      throw new AppError("Item status cannot be updated manually", 400);
+      throw new AppError(MESSAGES.STATUS_UPDATE_NOT_ALLOWED, 400);
     }
 
     const validatedData = updateItemSchema.parse(req.body);
 
     if (Object.keys(validatedData).length === 0) {
-      throw new AppError("At least one field is required for update", 400);
+      throw new AppError(MESSAGES.UPDATE_FIELDS_REQUIRED, 400);
     }
 
     const item = await getItemByIdService(itemId);
 
     if (!item) {
-      throw new AppError("Item not found", 404);
+      throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
     }
 
-    if (item.seller_id !== req.user?.id && req.user?.role !== "admin") {
-      throw new AppError("Access denied", 403);
+    if (item.seller_id !== req.user?.id && req.user?.role !== ROLES.ADMIN) {
+      throw new AppError(MESSAGES.ACCESS_DENIED, 403);
     }
 
     await updateItemService(itemId, validatedData);
 
     res.status(200).json({
       success: true,
-      message: "Item updated successfully",
+      message: MESSAGES.ITEM_UPDATED,
     });
   },
 );
@@ -130,18 +134,18 @@ export const deleteItemController = asyncHandler(
     const item = await getItemByIdService(itemId);
 
     if (!item) {
-      throw new AppError("Item not found", 404);
+      throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
     }
 
-    if (item.seller_id !== req.user?.id && req.user?.role !== "admin") {
-      throw new AppError("Access denied", 403);
+    if (item.seller_id !== req.user?.id && req.user?.role !== ROLES.ADMIN) {
+      throw new AppError(MESSAGES.ACCESS_DENIED, 403);
     }
 
     await deleteItemService(itemId);
 
     res.status(200).json({
       success: true,
-      message: "Item deleted successfully",
+      message: MESSAGES.ITEM_DELETED,
     });
   },
 );

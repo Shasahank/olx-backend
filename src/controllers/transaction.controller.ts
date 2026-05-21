@@ -12,19 +12,23 @@ import {
   purchaseItemService,
 } from "../services/transaction.service";
 
+import { ROLES } from "../constants/roles";
+
+import { MESSAGES } from "../constants/messages";
+
 export const purchaseItemController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const itemId = Number(req.params.itemId);
 
     if (!req.user) {
-      throw new AppError("Unauthorized access", 401);
+      throw new AppError(MESSAGES.UNAUTHORIZED, 401);
     }
 
     await purchaseItemService(itemId, req.user.id);
 
     res.status(200).json({
       success: true,
-      message: "Item purchased successfully",
+      message: MESSAGES.ITEM_PURCHASED,
     });
   },
 );
@@ -72,17 +76,17 @@ export const getTransactionByIdController = asyncHandler(
     const transaction = await getTransactionByIdService(transactionId);
 
     if (!transaction) {
-      throw new AppError("Transaction not found", 404);
+      throw new AppError(MESSAGES.TRANSACTION_NOT_FOUND, 404);
     }
 
     const isOwner =
       transaction.buyer_id === req.user?.id ||
       transaction.seller_id === req.user?.id;
 
-    const isAdmin = req.user?.role === "admin";
+    const isAdmin = req.user?.role === ROLES.ADMIN;
 
     if (!isOwner && !isAdmin) {
-      throw new AppError("Access denied", 403);
+      throw new AppError(MESSAGES.ACCESS_DENIED, 403);
     }
 
     res.status(200).json({

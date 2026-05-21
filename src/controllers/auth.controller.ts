@@ -2,19 +2,13 @@ import { Request, Response } from "express";
 
 import asyncHandler from "../utils/asyncHandler";
 
-import AppError from "../utils/appError";
+import { loginSchema, signupSchema } from "../validations/auth.validation";
 
-import {
-  loginSchema,
-  signupSchema,
-} from "../validations/auth.validation";
-
-import {
-  loginService,
-  signupService,
-} from "../services/auth.service";
+import { loginService, signupService } from "../services/auth.service";
 
 import { generateToken } from "../utils/jwt";
+
+import { MESSAGES } from "../constants/messages";
 
 export const signupController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
@@ -24,9 +18,9 @@ export const signupController = asyncHandler(
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
+      message: MESSAGES.USER_REGISTERED,
     });
-  }
+  },
 );
 
 export const loginController = asyncHandler(
@@ -38,17 +32,7 @@ export const loginController = asyncHandler(
       validatedData.password,
     );
 
-    if (!user) {
-      throw new AppError(
-        "Invalid email or password",
-        401
-      );
-    }
-
-    const token = generateToken(
-      user.id,
-      user.role
-    );
+    const token = generateToken(user.id, user.role);
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -58,7 +42,7 @@ export const loginController = asyncHandler(
 
     res.status(200).json({
       success: true,
-      message: "Login successful",
+      message: MESSAGES.LOGIN_SUCCESS,
       token,
       user: {
         id: user.id,
@@ -67,7 +51,7 @@ export const loginController = asyncHandler(
         role: user.role,
       },
     });
-  }
+  },
 );
 
 export const logoutController = asyncHandler(
@@ -76,7 +60,7 @@ export const logoutController = asyncHandler(
 
     res.status(200).json({
       success: true,
-      message: "Logout successful",
+      message: MESSAGES.LOGOUT_SUCCESS,
     });
-  }
+  },
 );

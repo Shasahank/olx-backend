@@ -4,6 +4,8 @@ import { ZodError } from "zod";
 
 import AppError from "../utils/appError";
 
+import { MESSAGES } from "../constants/messages";
+
 const errorMiddleware = (
   error: any,
   req: Request,
@@ -12,7 +14,6 @@ const errorMiddleware = (
 ) => {
   console.error(error);
 
-  // CUSTOM APP ERROR
   if (error instanceof AppError) {
     res.status(error.statusCode).json({
       success: false,
@@ -22,7 +23,6 @@ const errorMiddleware = (
     return;
   }
 
-  // ZOD VALIDATION ERROR
   if (error instanceof ZodError) {
     res.status(400).json({
       success: false,
@@ -32,11 +32,10 @@ const errorMiddleware = (
     return;
   }
 
-  // JWT ERRORS
   if (error.name === "JsonWebTokenError") {
     res.status(401).json({
       success: false,
-      message: "Invalid token",
+      message: MESSAGES.INVALID_TOKEN,
     });
 
     return;
@@ -45,26 +44,24 @@ const errorMiddleware = (
   if (error.name === "TokenExpiredError") {
     res.status(401).json({
       success: false,
-      message: "Token expired",
+      message: MESSAGES.TOKEN_EXPIRED,
     });
 
     return;
   }
 
-  // MYSQL ERRORS
   if (error.code) {
     res.status(500).json({
       success: false,
-      message: "Database operation failed",
+      message: MESSAGES.DATABASE_ERROR,
     });
 
     return;
   }
 
-  // UNKNOWN ERRORS
   res.status(500).json({
     success: false,
-    message: "Internal server error",
+    message: MESSAGES.INTERNAL_SERVER_ERROR,
   });
 };
 
