@@ -21,6 +21,8 @@ import { ROLES } from "../constants/roles";
 
 import { MESSAGES } from "../constants/messages";
 
+import { ITEM_STATUS } from "../constants/item";
+
 export const createItemController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const validatedData = createItemSchema.parse(req.body);
@@ -112,6 +114,11 @@ export const updateItemController = asyncHandler(
 
     if (!item) {
       throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
+    }
+
+    // SOLD ITEMS ARE IMMUTABLE
+    if (item.status === ITEM_STATUS.SOLD) {
+      throw new AppError("Sold items cannot be edited", 400);
     }
 
     if (item.seller_id !== req.user?.id && req.user?.role !== ROLES.ADMIN) {
