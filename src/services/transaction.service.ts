@@ -1,4 +1,10 @@
-import { createTransaction } from "../repositories/transaction.repository";
+import {
+  createTransaction,
+  getAllTransactions,
+  getMyPurchases,
+  getMySales,
+  getTransactionById,
+} from "../repositories/transaction.repository";
 
 import { getItemById, markItemAsSold } from "../repositories/item.repository";
 
@@ -28,4 +34,22 @@ export const purchaseItemService = async (
   });
 
   await markItemAsSold(item.id);
+};
+
+export const getMyPurchasesService = async (buyerId: number): Promise<any> => {
+  return await getMyPurchases(buyerId);
+};
+
+export const getMySalesService = async (sellerId: number): Promise<any> => {
+  return await getMySales(sellerId);
+};
+
+export const getAllTransactionsService = async (): Promise<any> => {
+  return await getAllTransactions();
+};
+
+export const getTransactionByIdService = async (
+  transactionId: number,
+): Promise<any> => {
+  return await getTransactionById(transactionId);
 };
