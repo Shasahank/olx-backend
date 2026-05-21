@@ -8,22 +8,28 @@ import {
 
 import { getItemById, markItemAsSold } from "../repositories/item.repository";
 
+import AppError from "../utils/appError";
+
+import { ITEM_STATUS } from "../constants/item";
+
+import { MESSAGES } from "../constants/messages";
+
 export const purchaseItemService = async (
   itemId: number,
   buyerId: number,
 ): Promise<void> => {
-  const item = await getItemById(itemId);
+  const item: any = await getItemById(itemId);
 
   if (!item) {
-    throw new Error("Item not found");
+    throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
   }
 
-  if (item.status === "sold") {
-    throw new Error("Item already sold");
+  if (item.status === ITEM_STATUS.SOLD) {
+    throw new AppError(MESSAGES.ITEM_ALREADY_SOLD, 400);
   }
 
   if (item.seller_id === buyerId) {
-    throw new Error("You cannot purchase your own item");
+    throw new AppError(MESSAGES.CANNOT_BUY_OWN_ITEM, 400);
   }
 
   await createTransaction({
