@@ -76,16 +76,27 @@ export const purchaseItemService = async (
   }
 };
 
-export const getMyPurchasesService = async (buyerId: number): Promise<any> => {
-  return await getMyPurchases(buyerId);
+export const getMyPurchasesService = async (
+  buyerId: number,
+  page: number,
+  limit: number,
+): Promise<any> => {
+  return await getMyPurchases(buyerId, page, limit);
 };
 
-export const getMySalesService = async (sellerId: number): Promise<any> => {
-  return await getMySales(sellerId);
+export const getMySalesService = async (
+  sellerId: number,
+  page: number,
+  limit: number,
+): Promise<any> => {
+  return await getMySales(sellerId, page, limit);
 };
 
-export const getAllTransactionsService = async (): Promise<any> => {
-  return await getAllTransactions();
+export const getAllTransactionsService = async (
+  page: number,
+  limit: number,
+): Promise<any> => {
+  return await getAllTransactions(page, limit);
 };
 
 export const getTransactionByIdService = async (

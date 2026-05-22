@@ -43,18 +43,35 @@ const router = Router();
  *       404:
  *         description: Item not found
  */
-router.post("/purchase/:itemId", authenticateUser, purchaseItemController);
+router.post(
+  "/purchase/:itemId",
+  authenticateUser,
+  purchaseItemController,
+);
 
 /**
  * @swagger
  * /api/v1/transactions/my-purchases:
  *   get:
  *     summary: Get my purchases
- *     description: Fetch all items purchased by logged in user
+ *     description: Fetch paginated purchases of logged in user
  *     tags:
  *       - Transactions
  *     security:
  *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: number
+ *         example: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *         example: 10
  *
  *     responses:
  *       200:
@@ -62,18 +79,35 @@ router.post("/purchase/:itemId", authenticateUser, purchaseItemController);
  *       401:
  *         description: Unauthorized
  */
-router.get("/my-purchases", authenticateUser, getMyPurchasesController);
+router.get(
+  "/my-purchases",
+  authenticateUser,
+  getMyPurchasesController,
+);
 
 /**
  * @swagger
  * /api/v1/transactions/my-sales:
  *   get:
  *     summary: Get my sales
- *     description: Fetch all sold items by logged in seller
+ *     description: Fetch paginated sales of logged in seller
  *     tags:
  *       - Transactions
  *     security:
  *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: number
+ *         example: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *         example: 10
  *
  *     responses:
  *       200:
@@ -81,18 +115,35 @@ router.get("/my-purchases", authenticateUser, getMyPurchasesController);
  *       401:
  *         description: Unauthorized
  */
-router.get("/my-sales", authenticateUser, getMySalesController);
+router.get(
+  "/my-sales",
+  authenticateUser,
+  getMySalesController,
+);
 
 /**
  * @swagger
  * /api/v1/transactions:
  *   get:
  *     summary: Get all transactions
- *     description: Admin can fetch all marketplace transactions
+ *     description: Admin can fetch paginated marketplace transactions
  *     tags:
  *       - Transactions
  *     security:
  *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: number
+ *         example: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *         example: 10
  *
  *     responses:
  *       200:
@@ -138,6 +189,10 @@ router.get(
  *       404:
  *         description: Transaction not found
  */
-router.get("/:id", authenticateUser, getTransactionByIdController);
+router.get(
+  "/:id",
+  authenticateUser,
+  getTransactionByIdController,
+);
 
 export default router;

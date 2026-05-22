@@ -2,8 +2,6 @@ import request from "supertest";
 
 import app from "../app";
 
-import pool from "../database/db";
-
 describe("Transaction APIs", () => {
   const sellerEmail = `seller${Date.now()}@gmail.com`;
 
@@ -59,7 +57,7 @@ describe("Transaction APIs", () => {
     buyerToken = buyerLogin.body.token;
 
     // CREATE ITEM
-    const itemResponse = await request(app)
+    await request(app)
       .post("/api/v1/items")
       .set("Authorization", `Bearer ${sellerToken}`)
       .send({
@@ -74,7 +72,7 @@ describe("Transaction APIs", () => {
 
     // FETCH ITEMS
     const items = await request(app)
-      .get("/api/v1/items")
+      .get("/api/v1/items?page=1&limit=10")
       .set("Authorization", `Bearer ${sellerToken}`);
 
     itemId = items.body.items[0].id;
@@ -100,28 +98,44 @@ describe("Transaction APIs", () => {
     expect(response.body.success).toBe(false);
   });
 
-  it("should fetch buyer purchases", async () => {
+  it("should fetch paginated buyer purchases", async () => {
     const response = await request(app)
-      .get("/api/v1/transactions/my-purchases")
+      .get("/api/v1/transactions/my-purchases?page=1&limit=10")
       .set("Authorization", `Bearer ${buyerToken}`);
 
     expect(response.status).toBe(200);
 
     expect(response.body.success).toBe(true);
 
+    expect(response.body.page).toBe(1);
+
+    expect(response.body.limit).toBe(10);
+
+    expect(response.body.totalItems).toBeDefined();
+
+    expect(response.body.totalPages).toBeDefined();
+
     expect(Array.isArray(response.body.transactions)).toBe(true);
 
     transactionId = response.body.transactions[0].id;
   });
 
-  it("should fetch seller sales", async () => {
+  it("should fetch paginated seller sales", async () => {
     const response = await request(app)
-      .get("/api/v1/transactions/my-sales")
+      .get("/api/v1/transactions/my-sales?page=1&limit=10")
       .set("Authorization", `Bearer ${sellerToken}`);
 
     expect(response.status).toBe(200);
 
     expect(response.body.success).toBe(true);
+
+    expect(response.body.page).toBe(1);
+
+    expect(response.body.limit).toBe(10);
+
+    expect(response.body.totalItems).toBeDefined();
+
+    expect(response.body.totalPages).toBeDefined();
   });
 
   it("should fetch transaction details", async () => {
@@ -132,9 +146,5 @@ describe("Transaction APIs", () => {
     expect(response.status).toBe(200);
 
     expect(response.body.success).toBe(true);
-  });
-
-  afterAll(async () => {
-    await pool.end();
   });
 });

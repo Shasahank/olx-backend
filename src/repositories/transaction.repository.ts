@@ -24,7 +24,26 @@ export const createTransaction = async (
   return result;
 };
 
-export const getMyPurchases = async (buyerId: number): Promise<any> => {
+export const getMyPurchases = async (
+  buyerId: number,
+  page: number,
+  limit: number,
+): Promise<any> => {
+  const offset = (page - 1) * limit;
+
+  // GET TOTAL COUNT
+  const [countRows]: any = await pool.query(
+    `
+        SELECT COUNT(*) AS total
+        FROM transactions
+        WHERE buyer_id = ?
+      `,
+    [buyerId],
+  );
+
+  const total = countRows[0].total;
+
+  // GET PAGINATED DATA
   const [rows] = await pool.query(
     `
       SELECT
@@ -54,14 +73,38 @@ export const getMyPurchases = async (buyerId: number): Promise<any> => {
       WHERE transactions.buyer_id = ?
 
       ORDER BY transactions.created_at DESC
+
+      LIMIT ? OFFSET ?
     `,
-    [buyerId],
+    [buyerId, limit, offset],
   );
 
-  return rows;
+  return {
+    total,
+    transactions: rows,
+  };
 };
 
-export const getMySales = async (sellerId: number): Promise<any> => {
+export const getMySales = async (
+  sellerId: number,
+  page: number,
+  limit: number,
+): Promise<any> => {
+  const offset = (page - 1) * limit;
+
+  // GET TOTAL COUNT
+  const [countRows]: any = await pool.query(
+    `
+        SELECT COUNT(*) AS total
+        FROM transactions
+        WHERE seller_id = ?
+      `,
+    [sellerId],
+  );
+
+  const total = countRows[0].total;
+
+  // GET PAGINATED DATA
   const [rows] = await pool.query(
     `
       SELECT
@@ -91,14 +134,35 @@ export const getMySales = async (sellerId: number): Promise<any> => {
       WHERE transactions.seller_id = ?
 
       ORDER BY transactions.created_at DESC
+
+      LIMIT ? OFFSET ?
     `,
-    [sellerId],
+    [sellerId, limit, offset],
   );
 
-  return rows;
+  return {
+    total,
+    transactions: rows,
+  };
 };
 
-export const getAllTransactions = async (): Promise<any> => {
+export const getAllTransactions = async (
+  page: number,
+  limit: number,
+): Promise<any> => {
+  const offset = (page - 1) * limit;
+
+  // GET TOTAL COUNT
+  const [countRows]: any = await pool.query(
+    `
+        SELECT COUNT(*) AS total
+        FROM transactions
+      `,
+  );
+
+  const total = countRows[0].total;
+
+  // GET PAGINATED DATA
   const [rows] = await pool.query(
     `
       SELECT
@@ -128,10 +192,16 @@ export const getAllTransactions = async (): Promise<any> => {
       ON transactions.seller_id = seller.id
 
       ORDER BY transactions.created_at DESC
+
+      LIMIT ? OFFSET ?
     `,
+    [limit, offset],
   );
 
-  return rows;
+  return {
+    total,
+    transactions: rows,
+  };
 };
 
 export const getTransactionById = async (
@@ -139,10 +209,10 @@ export const getTransactionById = async (
 ): Promise<any> => {
   const [rows]: any = await pool.query(
     `
-      SELECT *
-      FROM transactions
-      WHERE id = ?
-    `,
+        SELECT *
+        FROM transactions
+        WHERE id = ?
+      `,
     [transactionId],
   );
 

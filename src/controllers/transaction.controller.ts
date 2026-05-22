@@ -35,36 +35,72 @@ export const purchaseItemController = asyncHandler(
 
 export const getMyPurchasesController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const transactions = await getMyPurchasesService(req.user!.id);
+    const page = Number(req.query.page) || 1;
+
+    const limit = Number(req.query.limit) || 10;
+
+    const result = await getMyPurchasesService(req.user!.id, page, limit);
 
     res.status(200).json({
       success: true,
-      total: transactions.length,
-      transactions,
+
+      page,
+
+      limit,
+
+      totalItems: result.total,
+
+      totalPages: Math.ceil(result.total / limit),
+
+      transactions: result.transactions,
     });
   },
 );
 
 export const getMySalesController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const transactions = await getMySalesService(req.user!.id);
+    const page = Number(req.query.page) || 1;
+
+    const limit = Number(req.query.limit) || 10;
+
+    const result = await getMySalesService(req.user!.id, page, limit);
 
     res.status(200).json({
       success: true,
-      total: transactions.length,
-      transactions,
+
+      page,
+
+      limit,
+
+      totalItems: result.total,
+
+      totalPages: Math.ceil(result.total / limit),
+
+      transactions: result.transactions,
     });
   },
 );
 
 export const getAllTransactionsController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const transactions = await getAllTransactionsService();
+    const page = Number(req.query.page) || 1;
+
+    const limit = Number(req.query.limit) || 10;
+
+    const result = await getAllTransactionsService(page, limit);
 
     res.status(200).json({
       success: true,
-      total: transactions.length,
-      transactions,
+
+      page,
+
+      limit,
+
+      totalItems: result.total,
+
+      totalPages: Math.ceil(result.total / limit),
+
+      transactions: result.transactions,
     });
   },
 );
