@@ -22,28 +22,40 @@ const router = Router();
  *       - Items
  *     security:
  *       - bearerAuth: []
+ *
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - price
+ *               - image_url
+ *
  *             properties:
  *               title:
  *                 type: string
- *                 example: iPhone 14
+ *                 example: iPhone 15
+ *
  *               description:
  *                 type: string
- *                 example: Brand new iPhone 14 for sale
+ *                 example: Brand new iPhone
+ *
  *               price:
  *                 type: number
- *                 example: 65000
+ *                 example: 70000
+ *
  *               image_url:
  *                 type: string
- *                 example: https://example.com/iphone.jpg
+ *                 example: https://example.com/image.jpg
+ *
  *     responses:
  *       201:
  *         description: Item created successfully
+ *
  *       401:
  *         description: Unauthorized
  */
@@ -54,11 +66,12 @@ router.post("/", authenticateUser, createItemController);
  * /api/v1/items:
  *   get:
  *     summary: Get all items
- *     description: Fetch marketplace items with search, filter, sorting and pagination
+ *     description: Fetch marketplace items with pagination, filtering and sorting
  *     tags:
  *       - Items
  *     security:
  *       - bearerAuth: []
+ *
  *     parameters:
  *       - in: query
  *         name: search
@@ -70,13 +83,13 @@ router.post("/", authenticateUser, createItemController);
  *         name: minPrice
  *         schema:
  *           type: number
- *         example: 10000
+ *         example: 1000
  *
  *       - in: query
  *         name: maxPrice
  *         schema:
  *           type: number
- *         example: 70000
+ *         example: 50000
  *
  *       - in: query
  *         name: sort
@@ -99,6 +112,7 @@ router.post("/", authenticateUser, createItemController);
  *     responses:
  *       200:
  *         description: Items fetched successfully
+ *
  *       401:
  *         description: Unauthorized
  */
@@ -109,9 +123,12 @@ router.get("/", authenticateUser, getAllItemsController);
  * /api/v1/items/{id}:
  *   get:
  *     summary: Get single item
- *     description: Fetch single marketplace item details
+ *     description: Fetch single item details
  *     tags:
  *       - Items
+ *     security:
+ *       - bearerAuth: []
+ *
  *     parameters:
  *       - in: path
  *         name: id
@@ -119,13 +136,18 @@ router.get("/", authenticateUser, getAllItemsController);
  *         schema:
  *           type: number
  *         example: 1
+ *
  *     responses:
  *       200:
  *         description: Item fetched successfully
+ *
+ *       401:
+ *         description: Unauthorized
+ *
  *       404:
  *         description: Item not found
  */
-router.get("/:id", getSingleItemController);
+router.get("/:id", authenticateUser, getSingleItemController);
 
 /**
  * @swagger
@@ -137,6 +159,7 @@ router.get("/:id", getSingleItemController);
  *       - Items
  *     security:
  *       - bearerAuth: []
+ *
  *     parameters:
  *       - in: path
  *         name: id
@@ -151,16 +174,20 @@ router.get("/:id", getSingleItemController);
  *         application/json:
  *           schema:
  *             type: object
+ *
  *             properties:
  *               title:
  *                 type: string
- *                 example: Updated iPhone 14
+ *                 example: Updated title
+ *
  *               description:
  *                 type: string
  *                 example: Updated description
+ *
  *               price:
  *                 type: number
- *                 example: 70000
+ *                 example: 50000
+ *
  *               image_url:
  *                 type: string
  *                 example: https://example.com/image.jpg
@@ -168,12 +195,16 @@ router.get("/:id", getSingleItemController);
  *     responses:
  *       200:
  *         description: Item updated successfully
+ *
  *       400:
  *         description: Invalid request
+ *
  *       401:
  *         description: Unauthorized
+ *
  *       403:
  *         description: Access denied
+ *
  *       404:
  *         description: Item not found
  */
@@ -189,6 +220,7 @@ router.put("/:id", authenticateUser, updateItemController);
  *       - Items
  *     security:
  *       - bearerAuth: []
+ *
  *     parameters:
  *       - in: path
  *         name: id
@@ -200,10 +232,13 @@ router.put("/:id", authenticateUser, updateItemController);
  *     responses:
  *       200:
  *         description: Item deleted successfully
+ *
  *       401:
  *         description: Unauthorized
+ *
  *       403:
  *         description: Access denied
+ *
  *       404:
  *         description: Item not found
  */

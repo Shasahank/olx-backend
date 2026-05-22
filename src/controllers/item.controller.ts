@@ -89,6 +89,25 @@ export const getSingleItemController = asyncHandler(
       throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | SOLD ITEM VISIBILITY RULE
+    |--------------------------------------------------------------------------
+    | Normal users cannot view sold items
+    | unless they are the item owner.
+    |
+    | Admin can view all sold items.
+    |--------------------------------------------------------------------------
+    */
+
+    const isAdmin = req.user?.role === ROLES.ADMIN;
+
+    const isOwner = req.user?.id === item.seller_id;
+
+    if (item.status === ITEM_STATUS.SOLD && !isAdmin && !isOwner) {
+      throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
+    }
+
     res.status(200).json({
       success: true,
       item,
@@ -142,6 +161,11 @@ export const deleteItemController = asyncHandler(
 
     if (!item) {
       throw new AppError(MESSAGES.ITEM_NOT_FOUND, 404);
+    }
+
+    // SOLD ITEMS CANNOT BE DELETED
+    if (item.status === ITEM_STATUS.SOLD) {
+      throw new AppError("Sold items cannot be deleted", 400);
     }
 
     if (item.seller_id !== req.user?.id && req.user?.role !== ROLES.ADMIN) {
